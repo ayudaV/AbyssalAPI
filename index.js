@@ -2,11 +2,14 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const database = require('./db')
 const Usuario = require('./models/usuario')
-const Ranking = require('./models/ranking');
-const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+const Ranking = require('./models/ranking')
+const app = express()
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 
+(async () => {
+    await database.sync()
+})()
 
 app.get('/usuarios', async function (req, res) {
     const usuarios = await Usuario.findAll()
@@ -90,5 +93,5 @@ app.delete('/ranking/:id', async function (req, res) {
         res.sendStatus(404)
     })
 })
-app.listen(8080);
+app.listen(8080)
 
