@@ -7,7 +7,7 @@ const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-(async () => {
+;(async () => {
     await database.sync()
 })()
 
@@ -35,6 +35,14 @@ app.get('/rankingByUser/:id', async function (req, res) {
     })
     res.send(rankings)
 })
+app.get('/rankingByFase/:fase', async function (req, res) {
+    const rankings = await Ranking.findAll({
+        where: {
+            fase: req.params.fase
+        }
+    })
+    res.send(rankings)
+})
 
 app.post('/usuario', async function (req, res) {
     await Usuario.create({
@@ -50,7 +58,8 @@ app.post('/usuario', async function (req, res) {
 app.post('/ranking', async function (req, res) {
     await Ranking.create({
         idUsuario: req.body.idUsuario,
-        pontuacao: req.body.pontuacao
+        pontuacao: req.body.pontuacao,
+        fase: req.body.fase
     }).then(function () {
         res.sendStatus(201)
     }).catch(function () {
@@ -69,6 +78,7 @@ app.put('/usuario/:id', async function (req, res) {
             res.sendStatus(404)
         })
 })
+//Deleta o usuario e todos os rankings dele
 app.delete('/usuario/:id', async function (req, res) {
     await Ranking.destroy({
         where: { idUsuario: req.params.id }
@@ -84,6 +94,14 @@ app.delete('/usuario/:id', async function (req, res) {
         res.sendStatus(404)
     })
 })
+app.delete('/ranking', async function (req, res) {
+    await Ranking.destroy()
+    .then(async function () {
+        res.sendStatus(200)
+    }).catch(function () {
+        res.sendStatus(404)
+    })
+})
 app.delete('/ranking/:id', async function (req, res) {
     await Ranking.destroy({
         where: { id: req.params.id }
@@ -93,5 +111,6 @@ app.delete('/ranking/:id', async function (req, res) {
         res.sendStatus(404)
     })
 })
+
 app.listen(8080)
 
