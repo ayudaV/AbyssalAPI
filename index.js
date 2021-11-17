@@ -22,11 +22,11 @@ app.get('/usuarios/:id', async function (req, res) {
     res.send(usuario)
 })
 app.get('/rankings', async function (req, res) {
-    const rakings = await Ranking.findAll()
+    const rakings = await Ranking.findAll( {include: Usuario})
     res.send(rakings)
 })
 app.get('/ranking/:id', async function (req, res) {
-    const ranking = await Ranking.findByPk(req.params.id)
+    const ranking = await Ranking.findByPk(req.params.id, {include: Usuario})
     res.send(ranking)
 })
 app.get('/rankingByUser/:id', async function (req, res) {
