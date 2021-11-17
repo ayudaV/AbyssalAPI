@@ -81,6 +81,7 @@ app.post('/authenticate', async function (req, res) {
 })
 app.post('/usuario', async function (req, res) {
 
+    //Criptografa a Senha do usuario
     bcrypt.genSalt(10, function (err, salt) {
         bcrypt.hash(req.body.senha, salt, async function (err, hash) {
             await Usuario.create({
