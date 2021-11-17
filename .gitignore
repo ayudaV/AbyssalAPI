@@ -121,3 +121,5 @@ dist
 ### Node Patch ###
 # Serverless Webpack directories
 .webpack/
+
+node_modules/
