@@ -1,5 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 const database = require('./db')
 const Usuario = require('./models/usuario')
 const Ranking = require('./models/ranking')
@@ -7,9 +9,9 @@ const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-;(async () => {
-    await database.sync()
-})()
+    ; (async () => {
+        await database.sync(/*{force:true}*/)
+    })()
 
 app.get('/usuarios', async function (req, res) {
     const usuarios = await Usuario.findAll()
@@ -43,15 +45,53 @@ app.get('/rankingByFase/:fase', async function (req, res) {
     })
     res.send(rankings)
 })
+app.post('/authenticate', async function (req, res) {
 
+    await Usuario.findOne({ where: { nomeUsuario: req.body.nomeUsuario } }).then(user => {
+        if (user === null) {
+            res.status(401).json({
+                message: "Invalid credentials!"
+            })
+        }
+        else {
+            bcrypt.compare(req.body.senha, user.senha, function (err, result) {
+                if (result) {
+                    const token = jwt.sign({
+                        nomeUsuario: user.nomeUsuario,
+                        idUsuario: user.id
+                    }, 'secret', function (err, token) {
+                        res.status(200).json({
+                            message: "Authentication Successful!",
+                            token: token
+                        })
+                    })
+                }
+                else {
+                    res.status(401).json({
+                        message: "Invalid credentials!"
+                    })
+                }
+            })
+        }
+    }).catch(error => {
+        res.status(500).json({
+            message: "Something went wrong!" + error
+        })
+    })
+})
 app.post('/usuario', async function (req, res) {
-    await Usuario.create({
-        nomeUsuario: req.body.nomeUsuario,
-        senha: req.body.senha
-    }).then(function () {
-        res.sendStatus(201)
-    }).catch(function () {
-        res.sendStatus(406)
+
+    bcrypt.genSalt(10, function (err, salt) {
+        bcrypt.hash(req.body.senha, salt, async function (err, hash) {
+            await Usuario.create({
+                nomeUsuario: req.body.nomeUsuario,
+                senha: hash
+            }).then(function () {
+                res.sendStatus(201)
+            }).catch(function () {
+                res.sendStatus(406)
+            })
+        })
     })
 })
 
@@ -68,6 +108,9 @@ app.post('/ranking', async function (req, res) {
 })
 app.put('/usuario/:id', async function (req, res) {
     const usuario = await Usuario.findByPk(req.params.id)
+    if (!usuario)
+        return res.sendStatus(404)
+
     console.log(usuario)
     usuario.nomeUsuario = req.body.nomeUsuario
     usuario.senha = req.body.senha
@@ -75,7 +118,7 @@ app.put('/usuario/:id', async function (req, res) {
         .then(function () {
             res.sendStatus(200)
         }).catch(function () {
-            res.sendStatus(404)
+            res.sendStatus(400)
         })
 })
 //Deleta o usuario e todos os rankings dele
@@ -96,11 +139,11 @@ app.delete('/usuario/:id', async function (req, res) {
 })
 app.delete('/ranking', async function (req, res) {
     await Ranking.destroy()
-    .then(async function () {
-        res.sendStatus(200)
-    }).catch(function () {
-        res.sendStatus(404)
-    })
+        .then(async function () {
+            res.sendStatus(200)
+        }).catch(function () {
+            res.sendStatus(404)
+        })
 })
 app.delete('/ranking/:id', async function (req, res) {
     await Ranking.destroy({
