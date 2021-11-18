@@ -34,7 +34,7 @@ app.get('/rankingByUser/:id', async function (req, res) {
         where: {
             idUsuario: req.params.id
         }
-    })
+    }, {include: Usuario})
     res.send(rankings)
 })
 app.get('/rankingByFase/:fase', async function (req, res) {
