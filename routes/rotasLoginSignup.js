@@ -18,6 +18,8 @@ router.post('/authenticate', async function (req, res) {
                     }, 'secret', function (err, token) {
                         res.status(200).json({
                             message: "Authentication Successful!",
+                            idUsuario: user.id,
+                            nomeUsuario: user.nomeUsuario,
                             token: token
                         })
                     })
