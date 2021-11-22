@@ -4,30 +4,30 @@ const Usuario = require('../models/usuario')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-router.post('/authenticate', async function (req, res) {
+router.post('/autenticacao', async function (req, res) {
 
     await Usuario.findOne({ where: { nomeUsuario: req.body.nomeUsuario } }).then(user => {
         if (user === null) {
-            res.status(401).json({ message: "Invalid credentials!" })
+            res.status(401).json({ message: "Credenciais Invalidas!" })
         } else {
             bcrypt.compare(req.body.senha, user.senha, function (err, result) {
                 if (result) {
-                    const token = jwt.sign({
+                    jwt.sign({
                         nomeUsuario: user.nomeUsuario,
                         idUsuario: user.id
                     }, 'secret', function (err, token) {
                         res.status(200).json({
-                            message: "Authentication Successful!",
+                            message: "Autenticacao realizada com sucesso!",
                             idUsuario: user.id,
                             nomeUsuario: user.nomeUsuario,
                             token: token
                         })
                     })
-                } else { res.status(401).json({ message: "Invalid credentials!" }) }
+                } else { res.status(401).json({ message: "Credenciais Invalidas!" }) }
             })
         }
     }).catch(error => {
-        res.status(500).json({ message: "Something went wrong!" + error })
+        res.status(500).json({ message: "Algo deu errado!" + error })
     })
 })
 router.post('/cadastro', async function (req, res) {

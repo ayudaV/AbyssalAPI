@@ -33,7 +33,7 @@ app.post('/rankings', rotasRanking)
 app.delete('/rankings', rotasRanking)
 app.delete('/rankings/:id', rotasRanking)
 
-app.post('/authenticate', rotasLoginSignup)
+app.post('/autenticacao', rotasLoginSignup)
 app.post('/cadastro', rotasLoginSignup)
 
 app.listen(8081)

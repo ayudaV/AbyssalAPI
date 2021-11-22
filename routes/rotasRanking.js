@@ -4,14 +4,17 @@ const Usuario = require('../models/usuario')
 const Ranking = require('../models/ranking')
 
 router.get('/rankings', async function (req, res) {
-    const rakings = await Ranking.findAll({ include: Usuario })
+    const rakings = await Ranking.findAll({
+        attributes: ['id', 'pontuacao', 'fase', 'createdAt', 'updatedAt'],
+        include: [{ model: Usuario, attributes: ['nomeUsuario'] }]
+    })
     res.send(rakings)
 })
 router.get('/orderRankings', async function (req, res) {
     const rakings = await Ranking.findAll({
         order: [
-            ['fase', 'ASC'],
-            ['pontuacao', 'DESC']
+            ['pontuacao', 'DESC'],
+            ['fase', 'ASC']
         ],
         attributes: ['id', 'pontuacao', 'fase', 'createdAt', 'updatedAt'],
         include: [{ model: Usuario, attributes: ['nomeUsuario'] }]
