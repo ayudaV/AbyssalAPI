@@ -82,6 +82,12 @@ router.get('/orderRankingsByUserFase/:id/:fase', async function (req, res) {
 })
 
 router.post('/rankings', async function (req, res) {
+    const rakings = await Ranking.findAll({
+        where: { idUsuario: req.body.idUsuario, fase: req.body.fase, pontuacao: req.body.pontuacao },
+    }).then(raking => {
+        if (raking === null) 
+            res.status(401).json({ message: "Ranking Duplicado!" })
+    })
     await Ranking.create({
         idUsuario: req.body.idUsuario,
         pontuacao: req.body.pontuacao,
